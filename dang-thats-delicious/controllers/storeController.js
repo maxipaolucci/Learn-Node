@@ -80,3 +80,18 @@ exports.updateStore = async (req, res) => {
             <a href="/stores/${store.slug}">View Store</a>`);
     res.redirect(`/stores/${store._id}/edit`);
 };
+
+exports.getStoreBySlug = async (req, res, next) => {
+    const store = await Store.findOne({ slug : req.params.slug});
+    
+    if (!store) return next(); //this calls the next middleware after routes that is notFound (check app.js). 
+                                //In this case we do this manually because mongo db returned a null over a valid route
+
+    res.render('store', { store, title : store.name });
+};
+
+exports.getStoresByTag = async (req, res, next) => {
+    const tags = await Store.getTagsList();
+    const tag = req.params.tag;
+    res.render('tag', { tags, title : 'Tags', tag });
+};
