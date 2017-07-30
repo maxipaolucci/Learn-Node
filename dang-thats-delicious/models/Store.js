@@ -31,7 +31,8 @@ const storeSchema = new mongoose.Schema({
             type : String,
             required : 'You must supply an address!'
         }
-    } 
+    },
+    photo : String 
 });
 
 //before save in the schema populates slug with name
