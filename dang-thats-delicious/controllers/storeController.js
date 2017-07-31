@@ -91,7 +91,10 @@ exports.getStoreBySlug = async (req, res, next) => {
 };
 
 exports.getStoresByTag = async (req, res, next) => {
-    const tags = await Store.getTagsList();
     const tag = req.params.tag;
-    res.render('tag', { tags, title : 'Tags', tag });
+    const tagQuery = tag || { $exists : true }; //if no tag => exists as true returns every record with at least one tag in it.
+    const tagsPromise = Store.getTagsList(); //instead of do await here that resolves a promise returned by mongoDB as we configure it in app.js
+    const storesPromise = Store.find({ tags : tagQuery }); //same as above
+    const [tags, stores] = await Promise.all([tagsPromise, storesPromise]); //all proccess the promises
+    res.render('tag', { tags, title : 'Tags', tag, stores });
 };
