@@ -106,3 +106,17 @@ exports.getStoresByTag = async (req, res, next) => {
     const [tags, stores] = await Promise.all([tagsPromise, storesPromise]); //all proccess the promises
     res.render('tag', { tags, title : 'Tags', tag, stores });
 };
+
+exports.searchStores = async (req, res) => {
+    const stores = await Store.find({
+        $text : { //the $text operator works because I created an index for the schema base on text type for name and description (check doc in mongoDB for $text)
+            $search : req.query.q
+        }
+    }, {
+        score : { $meta : 'textScore' } //this projection add a field score to each result with a value representing how related is each result to the value searched
+    }).sort({
+        score : { $meta : 'textScore' } //we sort by this field
+    }).limit(5);
+    
+    res.json(stores);
+}

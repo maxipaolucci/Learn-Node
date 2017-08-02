@@ -40,6 +40,12 @@ const storeSchema = new mongoose.Schema({
     }
 });
 
+//define our indexes for our searchs feature. This is going to create a compound index base on the two fields. Allowing us to search in both fields in one shot
+storeSchema.index({
+    name : 'text',
+    description : 'text'
+});
+
 //before save in the schema populates slug with name
 storeSchema.pre('save', async function(next) {
     if (!this.isModified('name')) {

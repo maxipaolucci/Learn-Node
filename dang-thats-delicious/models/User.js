@@ -35,7 +35,8 @@ userSchema.virtual('gravatar').get(function() {
                 //we do this to simplify the avatar thing. But maybe you want to let the users upload their images.
 });
 
-userSchema.plugin(passportLocalMongoose, { usernameField: 'email' }); //this plugin is going to add password and whatever else we need for login to our schema. We tell it that email is our user field
+userSchema.plugin(passportLocalMongoose, { usernameField: 'email' }); //this plugin is going to add password and whatever else we need for login to our schema. 
+                                                                      //We tell it that email is our user field. It is going to create an index by email in the DB.
 userSchema.plugin(mongodbErrorHandler); //this make mongoDB errors show a more comprensible message. 
                                         //We use it here cause when i.e. unique validation fails the 
                                         //error is pretty hard to understand. This plugin helps on that.
