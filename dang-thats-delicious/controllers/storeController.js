@@ -50,6 +50,7 @@ exports.resize = async (req, res, next) => {
 
 
 exports.createStore = async (req, res) => {
+    req.body.author = req.user._id;
     const store = await (new Store(req.body)).save(); //saves the store in the DB, return a Promise as we configure it in start.js. Check routes index.js to see how we catch possible errors
     req.flash('success', `Successfully created ${store.name}. Care to leave a review?`);
     res.redirect(`/store/${store.slug}`);
@@ -60,8 +61,15 @@ exports.getStores = async (req, res) => {
     res.render('stores', {title : 'Stores', stores });
 };
 
+const confirmOwner = (store, user) => {
+    if (!store.author.equals(user._id)) {
+        throw Error('You must own a store in order to edit it!');
+    }
+};
+
 exports.editStore = async (req, res) => {
     const store = await Store.findOne({ _id : req.params.id });
+    confirmOwner(store, req.user);
     res.render('editStore', { title : `Edit ${store.name}`, store });
 };
 
@@ -82,7 +90,7 @@ exports.updateStore = async (req, res) => {
 };
 
 exports.getStoreBySlug = async (req, res, next) => {
-    const store = await Store.findOne({ slug : req.params.slug});
+    const store = await Store.findOne({ slug : req.params.slug}).populate('author'); //with populate automatically fills the foreing key author with all the author object
     
     if (!store) return next(); //this calls the next middleware after routes that is notFound (check app.js). 
                                 //In this case we do this manually because mongo db returned a null over a valid route
