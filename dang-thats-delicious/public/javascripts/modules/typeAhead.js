@@ -1,4 +1,4 @@
-import axios  from 'axios';
+import axios  from 'axios'; //for autocomplete ajax calls
 import dompurify from 'dompurify'; //prevent hacks like onload in images. See final of course class 32
 
 function searchResultsHTML(stores) {
