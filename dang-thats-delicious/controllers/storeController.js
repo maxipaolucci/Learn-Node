@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Store = mongoose.model('Store'); //I can do this because I already setup Store as a mongo model in Store.js
+const User = mongoose.model('User'); //I can do this because I already setup User as a mongo model in User.js
 const multer = require('multer'); //manage images
 const jimp = require('jimp'); //resize images
 const uuid = require('uuid'); //unique names for the images files
@@ -145,4 +146,17 @@ exports.mapStores = async (req, res) => {
 
 exports.mapPage = (req, res) => {
     res.render('map', { title : 'Map' });
+};
+
+exports.heartStore = async (req, res) => {
+    //If the user didn't add this store to his hearts array before we are going to add it otherwise we remove it.
+
+    const hearts = req.user.hearts.map(obj => obj.toString()); //this works because mongoDB attachs toString methods to their objects
+    const operator = hearts.includes(req.params.id) ?  '$pull' : '$addToSet'; //$pull is the operator to remove data from MongoDB array and $addToSet to add it.
+                                                                            //the reason we use $addToSet instead of $push is because addToSet inserts unique elements on it while push does not care about uniqueness
+    const user = await User.findByIdAndUpdate(req.user._id,
+        { [operator] : { hearts : req.params.id }},
+        { new : true } //this is to make this function "findByIdAndUpdate" returns the updated user once updated rather than the previous to update instance
+    );
+    res.json(user);
 };
