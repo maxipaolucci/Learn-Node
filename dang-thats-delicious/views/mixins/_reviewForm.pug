@@ -1,0 +1,10 @@
+mixin reviewForm(store)
+  form.reviewer(action=`/reviews/${store._id}` method="POST")
+    textarea(name="text" placeholder="Did you try this place? have something to say? Leave a review...")
+    .reviewer__meta
+      .reviewer__stars
+        each num in [5,4,3,2,1] 
+          //- it is in backward order just to take adventage of scss to make the select efect on hover. check scss file and course class 37 minute 8.00 
+          input(type="radio" required id=`star${num}` name="rating" value=num)
+          label(for=`star${num}`) #{num} Stars
+      input.button(type="submit" value="Submit Review")

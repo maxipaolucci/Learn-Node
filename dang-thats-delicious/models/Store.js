@@ -38,6 +38,13 @@ const storeSchema = new mongoose.Schema({
         ref : 'User',
         required : 'You must supply an author!'
     }
+}, {
+    toJSON : { virtuals : true }, // By default is FALSE. This means every time the document is converted into JSON (web service) then the virtuals 
+                                // fields are going to be visible on it. Otherwise they are there but invisible you have to manualy ask 
+                                // for store.<virtual_field_name> to see the content. It either way works but this is more easy to debug (not neccessary to do this in order to access the info)
+    toObject : { virtuals : true }, // By default is FALSE. This means every time the document is converted into Object (a h.dump(store) in pug page) then the virtuals
+                                // fields are going to be visible on it. Otherwise they are there but invisible you have to manualy ask 
+                                // for store.<virtual_field_name> to see the content. It either way works but this is more easy to debug (not neccessary to do this in order to access the info)
 });
 
 //define our indexes for our searchs feature. This is going to create a compound index base on the two fields. Allowing us to search in both fields in one shot
@@ -65,7 +72,15 @@ storeSchema.pre('save', async function(next) {
     next();
 });
 
-//statics is the wat to add methods to my model in mongoDB. We don't use arrow fn because we wanna use this inside the fn
+// retrieves the reviews for a store in a virtual field (not stored in the db). 
+// This is like a innerjoin in SQL and is going to happen every time we get a store from mongo.
+storeSchema.virtual('reviews', {
+    ref : 'Review',
+    localField : '_id',
+    foreignField : 'store'
+});
+
+//statics is the way to add methods to my model in mongoDB. We don't use arrow fn because we wanna use this inside the fn
 storeSchema.statics.getTagsList = function() {
     //for aggregate google mongoDB aggregate operators
     return this.aggregate([

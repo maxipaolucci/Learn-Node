@@ -91,7 +91,10 @@ exports.updateStore = async (req, res) => {
 };
 
 exports.getStoreBySlug = async (req, res, next) => {
-    const store = await Store.findOne({ slug : req.params.slug}).populate('author'); //with populate automatically fills the foreing key author with all the author object
+    const store = await Store.findOne({ slug : req.params.slug})
+        .populate('author')   // with populate automatically fills the foreing key author with all the author object
+        .populate('reviews'); // this populate automatically fills the review foreign key with the review info. 
+                              // we could do all the populates with at once with .populate('author reviews')
     
     if (!store) return next(); //this calls the next middleware after routes that is notFound (check app.js). 
                                 //In this case we do this manually because mongo db returned a null over a valid route
