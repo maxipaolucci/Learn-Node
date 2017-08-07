@@ -58,7 +58,7 @@ exports.createStore = async (req, res) => {
 };
 
 exports.getStores = async (req, res) => {
-    const stores = await Store.find(); //get all the stores from the database
+    const stores = await Store.find(); //get all the stores from the database.
     res.render('stores', {title : 'Stores', stores });
 };
 
@@ -162,4 +162,9 @@ exports.heartStore = async (req, res) => {
         { new : true } //this is to make this function "findByIdAndUpdate" returns the updated user once updated rather than the previous to update instance
     );
     res.json(user);
+};
+
+exports.getTopStores = async (req, res) => {
+    const stores = await Store.getTopStores(); //complex queries fits better in the model than in the controller. (That's what the teacher said).
+    res.render('topStores', { stores, title : 'Top Stores!' });
 };

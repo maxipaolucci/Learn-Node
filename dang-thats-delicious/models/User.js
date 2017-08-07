@@ -44,4 +44,4 @@ userSchema.plugin(mongodbErrorHandler); //this make mongoDB errors show a more c
                                         //We use it here cause when i.e. unique validation fails the 
                                         //error is pretty hard to understand. This plugin helps on that.
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model('User', userSchema); //Mongo stores a table called "users" in the DB (it lowecase the model name and add an s automatically at the end)

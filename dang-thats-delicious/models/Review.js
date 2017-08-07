@@ -40,4 +40,4 @@ function autopopulate(next) {
 reviewSchema.pre('find', autopopulate); //we add a hook to the find method in this schema
 reviewSchema.pre('findOne', autopopulate); //we add a hook to the findOne method in this schema 
 
-module.exports = mongoose.model('Review', reviewSchema);
+module.exports = mongoose.model('Review', reviewSchema); //Mongo stores a table called "reviews" in the DB (it lowecase the model name and add an s automatically at the end)

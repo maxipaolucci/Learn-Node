@@ -90,4 +90,39 @@ storeSchema.statics.getTagsList = function() {
     ]);
 };
 
-module.exports = mongoose.model('Store', storeSchema);
+storeSchema.statics.getTopStores = function() {
+    //aggregate return a promise so we can await it when we call this methods
+    return this.aggregate([
+        // 1- lookup for Stores and papulate their reviews. 
+        //    We cannot use the virtual field "reviews" because aggregate is a lower level MongoDB function, it does not know anything about virtual fields.
+        { $lookup : { from : 'reviews', localField : '_id', foreignField : 'store', as : 'reviews' }}, //this is similar than the virtual field we created for reviews 
+        //2 -  filter stores with 2 or more reviews
+        { $match : { 'reviews.1' : { $exists : true } }}, //reviews.1 is how we access the 2nd review record in DB. review.0 is the 1st, review.2 the 3rd. 
+        // add the average reviews field
+        //      project is to create a new result based on field filtered before. $reviews means it is a field from data piped in. Project is going to return just the fields in the 
+        //      projection so for that we pass again all the other fields we need in result (photo, name, reviews). Mongo 3.4 added $addField to just add a field like 
+        //      averageRating instead of using projection and that is going to add the field to our previous resultset.
+        { $project : { 
+                photo : '$$ROOT.photo', //$$ROOT = original document
+                name : '$$ROOT.name',
+                reviews : '$$ROOT.reviews',
+                slug : '$$ROOT.slug',
+                averageRating : { $avg : '$reviews.rating'} //$reviews meand we are fetching the reviews field we piped int in the first step (1- lookup for Stores and papulate their reviews. )
+            } 
+        },
+        // sort it by our new field, highest first
+        { $sort : { averageRating : -1 }},
+        // limit to at most 10
+        { $limit : 10 }
+    ]);
+};
+
+function autopopulate(next) {
+    this.populate('reviews');
+    next();
+}
+
+storeSchema.pre('find', autopopulate);
+storeSchema.pre('findOne', autopopulate);
+
+module.exports = mongoose.model('Store', storeSchema); //Mongo stores a table called "stores" in the DB (it lowecase the model name and add an s automatically at the end)
